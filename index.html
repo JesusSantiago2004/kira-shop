@@ -1,147 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello Cutie</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-box-open"></i> Hello Cutie</h1>
-            <button id="theme-toggle"><i class="fas fa-moon"></i></button>
-            <!-- En el header, después del theme toggle -->
-            <button id="view-toggle" class="view-btn"><i class="fas fa-user"></i> Vista Usuario</button>
-        </header>
+      <header>
+        <h1><i class="fas fa-box-open"></i> Hello Cutie</h1>
+        <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+        <!-- En el header, después del theme toggle -->
+        <button id="view-toggle" class="view-btn">
+          <i class="fas fa-user"></i> Vista Usuario
+        </button>
+      </header>
 
-        <div class="dashboard">
-            <aside class="sidebar">
-                <nav>
-                    <ul>
-                        <li><a href="#" data-section="home"><i class="fas fa-home"></i> Home</a></li>
-                        <li class="active"><a href="#" data-section="products"><i class="fas fa-boxes"></i> Productos</a></li>
-                    </ul>
-                </nav>
-            </aside>
+      <div class="dashboard">
+        <aside class="sidebar">
+          <nav>
+            <ul>
+              <li>
+                <a href="#" data-section="home"
+                  ><i class="fas fa-home"></i> Home</a
+                >
+              </li>
+              <li class="active">
+                <a href="#" data-section="products"
+                  ><i class="fas fa-boxes"></i> Productos</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </aside>
 
-            <main class="content">
-                <!-- Sección Home -->
-                <section id="home-section" class="home-content" style="display: none;">
-                    <div class="welcome-message">
-                        <h2><i class="fas fa-home"></i> Bienvenido a Hello Cutie</h2>
-                        <p>Resumen de tu catálogo de productos.</p>
-                    </div>
+        <main class="content">
+          <!-- Sección Home -->
+          <section id="home-section" class="home-content" style="display: none">
+            <div class="welcome-message">
+              <h2><i class="fas fa-home"></i> Bienvenido a Hello Cutie</h2>
+              <p>Resumen de tu catálogo de productos.</p>
+            </div>
 
-                    <div class="summary-cards">
-                        <div class="summary-card total-products">
-                            <h3><i class="fas fa-box"></i> Total Productos</h3>
-                            <p id="total-products-count">0</p>
-                        </div>
-                        <div class="summary-card categories">
-                            <h3><i class="fas fa-tags"></i> Categorías</h3>
-                            <ul id="categories-list"></ul>
-                        </div>
-                    </div>
+            <div class="summary-cards">
+              <div class="summary-card total-products">
+                <h3><i class="fas fa-box"></i> Total Productos</h3>
+                <p id="total-products-count">0</p>
+              </div>
+              <div class="summary-card categories">
+                <h3><i class="fas fa-tags"></i> Categorías</h3>
+                <ul id="categories-list"></ul>
+              </div>
+            </div>
 
-                    <div class="recent-products">
-                        <h3><i class="fas fa-clock"></i> Productos Recientes</h3>
-                        <div class="products-grid" id="recent-products-grid"></div>
-                    </div>
-                </section>
+            <div class="recent-products">
+              <h3><i class="fas fa-clock"></i> Productos Recientes</h3>
+              <div class="products-grid" id="recent-products-grid"></div>
+            </div>
+          </section>
 
-                <!-- Sección Productos -->
-                <section id="products-section" class="product-content">
-                    <div class="product-form">
-                        <h2><i class="fas fa-plus-circle"></i> Registrar Nuevo Producto</h2>
-                        <form id="add-product-form">
-                            <div class="form-group">
-                                <label for="product-name">Nombre del Producto:</label>
-                                <input type="text" id="product-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-category">Categoría:</label>
-                                <select id="product-category" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    <option value="Stickers">Stickers</option>
-                                    <option value="Peluches">Peluches</option>
-                                    <option value="Alimentos">Alimentos</option>
-                                    <option value="Figuras">Figuras</option>
-                                    <option value="Otros">Otros</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-price">Precio ($):</label>
-                                <input type="number" id="product-price" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-stock">Cantidad en Stock:</label>
-                                <input type="number" id="product-stock" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-image">Imagen del Producto:</label>
-                                <input type="file" id="product-image" accept="image/*">
-                                <small>Formatos aceptados: JPG, PNG, GIF (Máx. 2MB)</small>
-                                <div class="image-preview" id="image-preview" style="display: none;">
-                                    <img id="preview-image" src="#" alt="Vista previa de la imagen">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="product-description">Descripción:</label>
-                                <textarea id="product-description" rows="3"></textarea>
-                            </div>
-                            <button type="submit" class="btn"><i class="fas fa-save"></i> Guardar Producto</button>
-                        </form>
-                    </div>
+          <!-- Sección Productos -->
+          <section id="products-section" class="product-content">
+            <div class="product-form">
+              <h2>
+                <i class="fas fa-plus-circle"></i> Registrar Nuevo Producto
+              </h2>
+              <form id="add-product-form">
+                <div class="form-group">
+                  <label for="product-name">Nombre del Producto:</label>
+                  <input type="text" id="product-name" required />
+                </div>
+                <div class="form-group">
+                  <label for="product-category">Categoría:</label>
+                  <select id="product-category" required>
+                    <option value="">Seleccione una categoría</option>
+                    <option value="Stickers">Stickers</option>
+                    <option value="Peluches">Peluches</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Figuras">Figuras</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="product-price">Precio ($):</label>
+                  <input
+                    type="number"
+                    id="product-price"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="product-stock">Cantidad en Stock:</label>
+                  <input type="number" id="product-stock" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label for="product-image">Imagen del Producto:</label>
+                  <input type="file" id="product-image" accept="image/*" />
+                  <small>Formatos aceptados: JPG, PNG, GIF (Máx. 2MB)</small>
+                  <div
+                    class="image-preview"
+                    id="image-preview"
+                    style="display: none"
+                  >
+                    <img
+                      id="preview-image"
+                      src="#"
+                      alt="Vista previa de la imagen"
+                    />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description">Descripción:</label>
+                  <textarea id="product-description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">
+                  <i class="fas fa-save"></i> Guardar Producto
+                </button>
+              </form>
+            </div>
 
-                    <div class="product-list">
-                        <div class="list-header">
-                            <h2><i class="fas fa-list"></i> Lista de Productos</h2>
-                            <div class="search-filter">
-                                <div class="search-box">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" id="search-product" placeholder="Buscar productos...">
-                                </div>
-                                <select id="filter-category">
-                                    <option value="">Todas las categorías</option>
-                                    <option value="Stickers">Stickers</option>
-                                    <option value="Peluches">Peluches</option>
-                                    <option value="Alimentos">Alimentos</option>
-                                    <option value="Figuras">Figuras</option>
-                                    <option value="Otros">Otros</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table id="products-table">
-                                <thead>
-                                    <tr>
-                                        <th class="image-col">Imagen</th>
-                                        <th class="name-col">Nombre</th>
-                                        <th class="category-col">Categoría</th>
-                                        <th class="price-col">Precio</th>
-                                        <th class="stock-col">Stock</th>
-                                        <th class="actions-col">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="products-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="table-footer">
-                            <div class="total-items" id="total-items">Mostrando 0 productos</div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
+            <div class="product-list">
+              <div class="list-header">
+                <h2><i class="fas fa-list"></i> Lista de Productos</h2>
+                <div class="search-filter">
+                  <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input
+                      type="text"
+                      id="search-product"
+                      placeholder="Buscar productos..."
+                    />
+                  </div>
+                  <select id="filter-category">
+                    <option value="">Todas las categorías</option>
+                    <option value="Stickers">Stickers</option>
+                    <option value="Peluches">Peluches</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Figuras">Figuras</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-container">
+                <table id="products-table">
+                  <thead>
+                    <tr>
+                      <th class="image-col">Imagen</th>
+                      <th class="name-col">Nombre</th>
+                      <th class="category-col">Categoría</th>
+                      <th class="price-col">Precio</th>
+                      <th class="stock-col">Stock</th>
+                      <th class="actions-col">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="products-table-body"></tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="total-items" id="total-items">
+                  Mostrando 0 productos
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
 
-        <footer>
-            <p>&copy; 2025 Catálogo de Productos - Hello Cutie. Todos los derechos reservados.</p>
-        </footer>
+      <footer>
+        <p>
+          &copy; 2025 Catálogo de Productos - Hello Cutie. Todos los derechos
+          reservados.
+        </p>
+      </footer>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

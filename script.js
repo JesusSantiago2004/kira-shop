@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         products: document.getElementById('products-section')
     };
     const totalItemsElement = document.getElementById('total-items');
+    const viewToggle = document.getElementById('view-toggle'); // ← Añadido aquí
     let products = JSON.parse(localStorage.getItem('products')) || [];
 
     // Inicialización
@@ -26,6 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
     searchProduct.addEventListener('input', handleSearch);
     filterCategory.addEventListener('change', handleSearch);
     document.getElementById('product-image').addEventListener('change', handleImagePreview);
+    viewToggle.addEventListener('click', () => { // ← Añadido aquí
+        window.location.href = 'user-view.html';
+    });
 
     // Funciones principales
     function initTheme() {
@@ -50,20 +54,20 @@ document.addEventListener('DOMContentLoaded', function() {
         navLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 // Actualizar navegación activa
                 navLinks.forEach(l => l.parentElement.classList.remove('active'));
                 this.parentElement.classList.add('active');
-                
+
                 // Mostrar la sección correspondiente
                 const sectionId = this.getAttribute('data-section');
                 Object.values(contentSections).forEach(section => {
                     section.style.display = 'none';
                 });
-                
+
                 if (contentSections[sectionId]) {
                     contentSections[sectionId].style.display = 'block';
-                    
+
                     // Actualizar el resumen si vamos a Home
                     if (sectionId === 'home') {
                         updateHomeSummary();
@@ -78,17 +82,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleAddProduct(e) {
         e.preventDefault();
-        
+
         const isEditing = addProductForm.dataset.editing;
         const imageInput = document.getElementById('product-image');
         const imageFile = imageInput.files[0];
-        
-        // Validar tamaño de imagen (máximo 2MB)
+
         if (imageFile && imageFile.size > 2 * 1024 * 1024) {
             showNotification('La imagen no debe exceder los 2MB', 'danger');
             return;
         }
-        
+
         const productData = {
             id: isEditing ? parseInt(isEditing) : Date.now(),
             name: document.getElementById('product-name').value,
@@ -96,13 +99,12 @@ document.addEventListener('DOMContentLoaded', function() {
             price: parseFloat(document.getElementById('product-price').value),
             stock: parseInt(document.getElementById('product-stock').value),
             description: document.getElementById('product-description').value,
-            createdAt: isEditing ? 
-                products.find(p => p.id === parseInt(isEditing))?.createdAt || new Date().toISOString() : 
+            createdAt: isEditing ?
+                products.find(p => p.id === parseInt(isEditing))?.createdAt || new Date().toISOString() :
                 new Date().toISOString(),
             image: null
         };
-        
-        // Procesar la imagen si se subió una
+
         if (imageFile) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -111,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             reader.readAsDataURL(imageFile);
         } else {
-            // Si estamos editando y no se subió nueva imagen, mantener la existente
             if (isEditing) {
                 const existingProduct = products.find(p => p.id === parseInt(isEditing));
                 if (existingProduct) {
@@ -130,11 +131,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             showNotification('Producto agregado correctamente', 'success');
         }
-        
-        products = isEditing ? 
-            [...products.filter(p => p.id !== productData.id), productData] : 
+
+        products = isEditing ?
+            [...products.filter(p => p.id !== productData.id), productData] :
             [...products, productData];
-        
+
         saveProducts();
         renderProducts(filterAndSearchProducts());
         updateHomeSummary();
@@ -146,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderProducts(productsToRender) {
         productsTableBody.innerHTML = '';
-        
+
         if (productsToRender.length === 0) {
             productsTableBody.innerHTML = `
                 <tr>
@@ -158,20 +159,19 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             return;
         }
-        
+
         productsToRender.forEach(product => {
             const tr = document.createElement('tr');
-            
-            // Determinar clase de stock
+
             let stockClass = '';
             if (product.stock < 5) stockClass = 'stock-low';
             else if (product.stock < 15) stockClass = 'stock-medium';
             else stockClass = 'stock-high';
-            
+
             tr.innerHTML = `
                 <td class="image-col">
-                    ${product.image ? 
-                        `<img src="${product.image}" alt="${product.name}" class="product-row-image">` : 
+                    ${product.image ?
+                        `<img src="${product.image}" alt="${product.name}" class="product-row-image">` :
                         `<div class="no-image-icon"><i class="fas fa-image"></i></div>`}
                 </td>
                 <td class="name-col">${product.name}</td>
@@ -193,8 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             productsTableBody.appendChild(tr);
         });
-        
-        // Agregar eventos después de renderizar
+
         setupProductActions();
     }
 
@@ -202,45 +201,42 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', deleteProduct);
         });
-        
+
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', editProduct);
         });
     }
 
     function updateHomeSummary() {
-        // Actualizar contador de productos
         document.getElementById('total-products-count').textContent = products.length;
-        
-        // Actualizar lista de categorías
+
         const categoriesList = document.getElementById('categories-list');
         categoriesList.innerHTML = '';
-        
+
         const categories = {};
         products.forEach(product => {
             categories[product.category] = (categories[product.category] || 0) + 1;
         });
-        
+
         for (const [category, count] of Object.entries(categories)) {
             const li = document.createElement('li');
             li.innerHTML = `<span>${category}</span> <span>${count}</span>`;
             categoriesList.appendChild(li);
         }
-        
-        // Mostrar productos recientes (últimos 6)
+
         const recentProductsGrid = document.getElementById('recent-products-grid');
         recentProductsGrid.innerHTML = '';
-        
+
         const recentProducts = [...products]
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 6);
-        
+
         recentProducts.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-                ${product.image ? 
-                    `<img src="${product.image}" alt="${product.name}">` : 
+                ${product.image ?
+                    `<img src="${product.image}" alt="${product.name}">` :
                     '<div class="no-image-preview"><i class="fas fa-image"></i></div>'}
                 <span class="category">${product.category}</span>
                 <h4>${product.name}</h4>
@@ -255,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = e.target.files[0];
         const preview = document.getElementById('preview-image');
         const previewContainer = document.getElementById('image-preview');
-        
+
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -277,12 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterAndSearchProducts() {
         const searchTerm = searchProduct.value.toLowerCase();
         const categoryFilter = filterCategory.value;
-        
+
         return products.filter(product => {
-            const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
-                                (product.description && product.description.toLowerCase().includes(searchTerm));
+            const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                (product.description && product.description.toLowerCase().includes(searchTerm));
             const matchesCategory = categoryFilter === '' || product.category === categoryFilter;
-            
+
             return matchesSearch && matchesCategory;
         });
     }
@@ -307,15 +303,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function editProduct(e) {
         const productId = parseInt(e.currentTarget.getAttribute('data-id'));
         const product = products.find(p => p.id === productId);
-        
+
         if (product) {
             document.getElementById('product-name').value = product.name;
             document.getElementById('product-category').value = product.category;
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-stock').value = product.stock;
             document.getElementById('product-description').value = product.description || '';
-            
-            // Mostrar vista previa de la imagen existente si hay una
+
             const imagePreview = document.getElementById('image-preview');
             if (product.image) {
                 document.getElementById('preview-image').src = product.image;
@@ -323,12 +318,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 imagePreview.style.display = 'none';
             }
-            
-            // Cambiar el formulario a modo edición
+
             addProductForm.dataset.editing = productId;
             addProductForm.querySelector('button').innerHTML = '<i class="fas fa-save"></i> Actualizar Producto';
-            
-            // Desplazarse al formulario
             document.querySelector('.product-form').scrollIntoView({ behavior: 'smooth' });
         }
     }
@@ -344,15 +336,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
             <button class="close-btn">&times;</button>
         `;
-        
+
         document.body.appendChild(notification);
-        
-        // Cerrar notificación
+
         notification.querySelector('.close-btn').addEventListener('click', () => {
             notification.remove();
         });
-        
-        // Auto cerrar después de 3 segundos
+
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();

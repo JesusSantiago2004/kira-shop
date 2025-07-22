@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Cutie - Vista Usuario</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-store"></i> Hello Cutie</h1>
+            <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <div class="dashboard">
+            <main class="content">
+                <div class="carousel">
+                    <div class="carousel-inner" id="carousel-inner">
+                        <!-- Las imágenes del carrusel se añadirán con JavaScript -->
+                    </div>
+                    <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <h2 style="text-align: center; margin-top: 2rem; color: var(--primary-color);">
+                    <i class="fas fa-box-open"></i> Nuestros Productos
+                </h2>
+
+                <div class="user-products-grid" id="user-products-grid">
+                    <!-- Los productos se añadirán con JavaScript -->
+                </div>
+
+                <a href="index.html" class="btn back-to-admin">
+                    <i class="fas fa-user-shield"></i> Volver al Admin
+                </a>
+            </main>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Hello Cutie. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar productos desde localStorage
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            // Configurar el carrusel con las imágenes de los productos
+            const carouselInner = document.getElementById('carousel-inner');
+            const productsWithImages = products.filter(p => p.image);
+            
+            if (productsWithImages.length > 0) {
+                productsWithImages.slice(0, 5).forEach(product => {
+                    const carouselItem = document.createElement('div');
+                    carouselItem.className = 'carousel-item';
+                    carouselItem.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="carousel-caption">
+                            <h3>${product.name}</h3>
+                            <p>$${product.price.toFixed(2)}</p>
+                        </div>
+                    `;
+                    carouselInner.appendChild(carouselItem);
+                });
+            } else {
+                carouselInner.innerHTML = `
+                    <div class="carousel-item">
+                        <div style="background-color: var(--primary-color); height: 400px; display: flex; align-items: center; justify-content: center;">
+                            <h3 style="color: white;">Bienvenido a Hello Cutie</h3>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Configurar la funcionalidad del carrusel
+            let currentIndex = 0;
+            const items = document.querySelectorAll('.carousel-item');
+            const totalItems = items.length;
+            
+            function updateCarousel() {
+                carouselInner.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+            
+            document.querySelector('.carousel-control.next').addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % totalItems;
+                updateCarousel();
+            });
+            
+            document.querySelector('.carousel-control.prev').addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+                updateCarousel();
+            });
+            
+            // Mostrar todos los productos
+            const userProductsGrid = document.getElementById('user-products-grid');
+            
+            if (products.length === 0) {
+                userProductsGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                        <i class="fas fa-box-open" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>No hay productos disponibles</p>
+                    </div>
+                `;
+            } else {
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'user-product-card';
+                    productCard.innerHTML = `
+                        ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 
+                            `<div class="no-image-icon" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-image" style="font-size: 3rem;"></i>
+                            </div>`}
+                        <h3>${product.name}</h3>
+                        <div class="category">${product.category}</div>
+                        <div class="price">$${product.price.toFixed(2)}</div>
+                        <div class="stock">Disponibles: ${product.stock}</div>
+                    `;
+                    userProductsGrid.appendChild(productCard);
+                });
+            }
+            
+            // Configurar el tema
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            function initTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.body.dataset.theme = savedTheme;
+                updateThemeIcon();
+            }
+            
+            function toggleTheme() {
+                document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', document.body.dataset.theme);
+                updateThemeIcon();
+            }
+            
+            function updateThemeIcon() {
+                const icon = themeToggle.querySelector('i');
+                icon.classList.toggle('fa-moon', document.body.dataset.theme === 'light');
+                icon.classList.toggle('fa-sun', document.body.dataset.theme === 'dark');
+            }
+            
+            initTheme();
+        });
+    </script>
+</body>
+</html>

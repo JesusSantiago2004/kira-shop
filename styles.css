@@ -676,3 +676,127 @@ tr:hover {
     }
 }
 
+/* Añade esto cerca de los otros botones */
+.view-btn {
+    background-color: var(--info-color);
+    color: var(--light-color);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem;
+}
+
+.view-btn:hover {
+    background-color: #138496;
+}
+
+/* Para el carrusel en la vista de usuario */
+.carousel {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 2rem auto;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-item {
+    min-width: 100%;
+    position: relative;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 1rem;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+}
+
+.carousel-control.prev {
+    left: 1rem;
+}
+
+.carousel-control.next {
+    right: 1rem;
+}
+
+.user-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.user-product-card {
+    background-color: var(--light-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: transform 0.3s;
+    text-align: center;
+}
+
+.user-product-card:hover {
+    transform: translateY(-5px);
+}
+
+.user-product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.user-product-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.user-product-card .price {
+    font-weight: bold;
+    color: var(--success-color);
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.back-to-admin {
+    display: block;
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 200px;
+}

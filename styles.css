@@ -1,0 +1,331 @@
+:root {
+    --primary-color: #4a6baf;
+    --secondary-color: #f8f9fa;
+    --text-color: #333;
+    --light-color: #fff;
+    --dark-color: #343a40;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #5d78c8;
+    --secondary-color: #343a40;
+    --text-color: #f8f9fa;
+    --light-color: #212529;
+    --dark-color: #f8f9fa;
+    --border-color: #495057;
+    --shadow-color: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+header h1 {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#theme-toggle {
+    background: none;
+    border: none;
+    color: var(--light-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+}
+
+#theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: var(--light-color);
+    box-shadow: 2px 0 5px var(--shadow-color);
+    padding: 1rem 0;
+}
+
+.sidebar nav ul {
+    list-style: none;
+}
+
+.sidebar nav ul li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar nav ul li a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.sidebar nav ul li a:hover {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+}
+
+.sidebar nav ul li.active a {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    border-left: 4px solid var(--light-color);
+}
+
+.content {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: var(--secondary-color);
+}
+
+.product-form, .product-list {
+    background-color: var(--light-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.product-form h2, .product-list h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #3a5a9f;
+}
+
+.search-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-filter input,
+.search-filter select {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    font-weight: 500;
+}
+
+tr:hover {
+    background-color: rgba(74, 107, 175, 0.1);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.edit-btn {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+.delete-btn {
+    background-color: var(--danger-color);
+    color: var(--light-color);
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+footer {
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .sidebar nav ul {
+        display: flex;
+        overflow-x: auto;
+    }
+    
+    .sidebar nav ul li {
+        flex: 1 0 auto;
+        margin-bottom: 0;
+    }
+    
+    .sidebar nav ul li a {
+        padding: 1rem;
+        justify-content: center;
+    }
+    
+    .sidebar nav ul li.active a {
+        border-left: none;
+        border-bottom: 4px solid var(--light-color);
+    }
+    
+    .search-filter {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .content {
+        padding: 1rem;
+    }
+    
+    .product-form, .product-list {
+        padding: 1rem;
+    }
+    
+    th, td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-btn {
+        padding: 0.25rem;
+    }
+}

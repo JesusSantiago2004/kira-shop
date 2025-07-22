@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #4a6baf;
+    --primary-color: #FF69B4;
     --secondary-color: #f8f9fa;
     --text-color: #333;
     --light-color: #fff;
@@ -12,8 +12,20 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+/*
+:root {
+    --primary-color: #FFD1DC;  Rosa claro 
+    --secondary-color: #FFB6C1;  Rosa pastel 
+    --accent-color: #FFC0CB; Rosa bebé 
+    --dark-color: #FF69B4; Rosa más oscuro para contrastes 
+    --text-color: #333;
+    --light-text: #fff;
+    --background: #FFF0F5; Fondo muy claro 
+}
+*/
+
 [data-theme="dark"] {
-    --primary-color: #5d78c8;
+    --primary-color: #FF69B4;
     --secondary-color: #343a40;
     --text-color: #f8f9fa;
     --light-color: #212529;
@@ -177,7 +189,7 @@ header h1 {
 }
 
 .btn:hover {
-    background-color: #3a5a9f;
+    background-color: #FFD1DC;
 }
 
 .search-filter {

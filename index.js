@@ -3,14 +3,14 @@ import {
   collection,
   addDoc,
   getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-document.addEventListener("DOMContentLoaded", function () {
+let products = [];
+
+document.addEventListener("DOMContentLoaded", async function () {
   // Variables
   const themeToggle = document.getElementById("theme-toggle");
   const addProductForm = document.getElementById("add-product-form");
@@ -23,8 +23,9 @@ document.addEventListener("DOMContentLoaded", function () {
     products: document.getElementById("products-section"),
   };
   const totalItemsElement = document.getElementById("total-items");
-  const viewToggle = document.getElementById("view-toggle"); // ← Añadido aquí
-  let products = JSON.parse(localStorage.getItem("products")) || [];
+  const viewToggle = document.getElementById("view-toggle");
+
+  products = await loadProductsFromFirebase();
 
   // Inicialización
   initTheme();
@@ -42,11 +43,32 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("product-image")
     .addEventListener("change", handleImagePreview);
   viewToggle.addEventListener("click", () => {
-    // ← Añadido aquí
     window.location.href = "user-view.html";
   });
 
-  // Funciones principales
+  // FUNCIONES
+
+  async function loadProductsFromFirebase() {
+    const querySnapshot = await getDocs(collection(db, "productos"));
+    const loadedProducts = [];
+
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      loadedProducts.push({
+        id: docSnap.id,
+        name: data.name,
+        category: data.category,
+        price: data.price,
+        stock: data.stock,
+        description: data.description,
+        createdAt: data.createdAt,
+        image: data.image || null,
+      });
+    });
+
+    return loadedProducts;
+  }
+
   function initTheme() {
     const savedTheme = localStorage.getItem("theme") || "light";
     document.body.dataset.theme = savedTheme;
@@ -96,10 +118,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(".sidebar nav ul li.active a").click();
   }
 
-  function handleAddProduct(e) {
+  async function handleAddProduct(e) {
     e.preventDefault();
 
-    const isEditing = addProductForm.dataset.editing;
+    const isEditingId = addProductForm.dataset.editing;
+
     const imageInput = document.getElementById("product-image");
     const imageFile = imageInput.files[0];
 
@@ -109,60 +132,72 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const productData = {
-      id: isEditing ? parseInt(isEditing) : Date.now(),
       name: document.getElementById("product-name").value,
       category: document.getElementById("product-category").value,
       price: parseFloat(document.getElementById("product-price").value),
       stock: parseInt(document.getElementById("product-stock").value),
       description: document.getElementById("product-description").value,
-      createdAt: isEditing
-        ? products.find((p) => p.id === parseInt(isEditing))?.createdAt ||
-          new Date().toISOString()
-        : new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       image: null,
     };
 
     if (imageFile) {
       const reader = new FileReader();
-      reader.onload = function (e) {
-        productData.image = e.target.result;
-        saveProductData(productData, isEditing);
+      reader.onload = async function (event) {
+        productData.image = event.target.result;
+        await saveProductData(productData, isEditingId);
       };
       reader.readAsDataURL(imageFile);
     } else {
-      if (isEditing) {
-        const existingProduct = products.find(
-          (p) => p.id === parseInt(isEditing)
-        );
-        if (existingProduct) {
-          productData.image = existingProduct.image;
-        }
-      }
-      saveProductData(productData, isEditing);
+      await saveProductData(productData, isEditingId);
     }
   }
 
-  function saveProductData(productData, isEditing) {
-    if (isEditing) {
-      delete addProductForm.dataset.editing;
-      addProductForm.querySelector("button").innerHTML =
-        '<i class="fas fa-save"></i> Guardar Producto';
-      showNotification("Producto actualizado correctamente", "success");
+  async function saveProductData(productData, isEditingId) {
+    if (isEditingId) {
+      try {
+        const productRef = doc(db, "productos", isEditingId);
+        await updateDoc(productRef, {
+          ...productData,
+        });
+
+        showNotification("Producto actualizado correctamente", "success");
+
+        // Recargar lista desde Firebase
+        products = await loadProductsFromFirebase();
+        renderProducts(products);
+        updateHomeSummary();
+        updateTotalItems();
+
+        addProductForm.reset();
+        document.getElementById("image-preview").style.display = "none";
+        delete addProductForm.dataset.editing;
+        addProductForm.querySelector("button").innerHTML =
+          '<i class="fas fa-plus"></i> Agregar Producto';
+      } catch (error) {
+        console.error("Error actualizando producto:", error);
+        showNotification("Error al actualizar producto", "danger");
+      }
     } else {
-      showNotification("Producto agregado correctamente", "success");
+      try {
+        await addDoc(collection(db, "productos"), {
+          ...productData,
+        });
+
+        showNotification("Producto agregado correctamente", "success");
+
+        products = await loadProductsFromFirebase();
+        renderProducts(products);
+        updateHomeSummary();
+        updateTotalItems();
+
+        addProductForm.reset();
+        document.getElementById("image-preview").style.display = "none";
+      } catch (error) {
+        console.error("Error al guardar en Firestore:", error);
+        showNotification("Error al guardar en Firestore", "danger");
+      }
     }
-
-    products = isEditing
-      ? [...products.filter((p) => p.id !== productData.id), productData]
-      : [...products, productData];
-
-    saveProducts();
-    renderProducts(filterAndSearchProducts());
-    updateHomeSummary();
-    updateTotalItems();
-    addProductForm.reset();
-    document.getElementById("image-preview").style.display = "none";
-    document.getElementById("product-image").value = "";
   }
 
   function renderProducts(productsToRender) {
@@ -170,13 +205,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (productsToRender.length === 0) {
       productsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center no-products">
-                        <i class="fas fa-box-open" style="font-size: 2rem;"></i>
-                        <p>No se encontraron productos</p>
-                    </td>
-                </tr>
-            `;
+        <tr>
+          <td colspan="6" class="text-center no-products">
+            <i class="fas fa-box-open" style="font-size: 2rem;"></i>
+            <p>No se encontraron productos</p>
+          </td>
+        </tr>
+      `;
       return;
     }
 
@@ -189,34 +224,31 @@ document.addEventListener("DOMContentLoaded", function () {
       else stockClass = "stock-high";
 
       tr.innerHTML = `
-                <td class="image-col">
-                    ${
-                      product.image
-                        ? `<img src="${product.image}" alt="${product.name}" class="product-row-image">`
-                        : `<div class="no-image-icon"><i class="fas fa-image"></i></div>`
-                    }
-                </td>
-                <td class="name-col">${product.name}</td>
-                <td class="category-col">
-                    <span class="category-badge">${product.category}</span>
-                </td>
-                <td class="price-col">$${product.price.toFixed(2)}</td>
-                <td class="stock-col ${stockClass}">${product.stock}</td>
-                <td class="actions-col">
-                    <div class="actions">
-                        <button class="action-btn edit-btn" data-id="${
-                          product.id
-                        }" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete-btn" data-id="${
-                          product.id
-                        }" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
+        <td class="image-col">
+          ${
+            product.image
+              ? `<img src="${product.image}" alt="${product.name}" class="product-row-image">`
+              : `<div class="no-image-icon"><i class="fas fa-image"></i></div>`
+          }
+        </td>
+        <td class="name-col">${product.name}</td>
+        <td class="category-col">
+          <span class="category-badge">${product.category}</span>
+        </td>
+        <td class="price-col">$${product.price.toFixed(2)}</td>
+        <td class="stock-col ${stockClass}">${product.stock}</td>
+        <td class="actions-col">
+          <div class="actions">
+            <button class="action-btn edit-btn" data-id="${product.id}" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" data-id="${product.id}" title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
+
       productsTableBody.appendChild(tr);
     });
 
@@ -233,9 +265,57 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  async function deleteProduct(e) {
+    const productId = e.currentTarget.getAttribute("data-id");
+    if (!productId) return;
+
+    if (confirm("¿Estás seguro de eliminar este producto?")) {
+      try {
+        await deleteDoc(doc(db, "productos", productId));
+
+        products = products.filter((p) => p.id !== productId);
+
+        renderProducts(products);
+        updateHomeSummary();
+        updateTotalItems();
+
+        showNotification("Producto eliminado correctamente", "success");
+      } catch (error) {
+        console.error("Error eliminando producto:", error);
+        showNotification("Error al eliminar producto", "danger");
+      }
+    }
+  }
+
+  function editProduct(e) {
+    const productId = e.currentTarget.getAttribute("data-id");
+    const product = products.find((p) => p.id === productId);
+
+    if (product) {
+      document.getElementById("product-name").value = product.name;
+      document.getElementById("product-category").value = product.category;
+      document.getElementById("product-price").value = product.price;
+      document.getElementById("product-stock").value = product.stock;
+      document.getElementById("product-description").value = product.description || "";
+
+      const imagePreview = document.getElementById("image-preview");
+      if (product.image) {
+        document.getElementById("preview-image").src = product.image;
+        imagePreview.style.display = "block";
+      } else {
+        imagePreview.style.display = "none";
+      }
+
+      addProductForm.dataset.editing = productId;
+      addProductForm.querySelector("button").innerHTML =
+        '<i class="fas fa-save"></i> Actualizar Producto';
+
+      document.querySelector(".product-form").scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
   function updateHomeSummary() {
-    document.getElementById("total-products-count").textContent =
-      products.length;
+    document.getElementById("total-products-count").textContent = products.length;
 
     const categoriesList = document.getElementById("categories-list");
     categoriesList.innerHTML = "";
@@ -262,16 +342,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const card = document.createElement("div");
       card.className = "product-card";
       card.innerHTML = `
-                ${
-                  product.image
-                    ? `<img src="${product.image}" alt="${product.name}">`
-                    : '<div class="no-image-preview"><i class="fas fa-image"></i></div>'
-                }
-                <span class="category">${product.category}</span>
-                <h4>${product.name}</h4>
-                <div class="price">$${product.price.toFixed(2)}</div>
-                <div class="stock">Stock: ${product.stock}</div>
-            `;
+        ${
+          product.image
+            ? `<img src="${product.image}" alt="${product.name}">`
+            : '<div class="no-image-preview"><i class="fas fa-image"></i></div>'
+        }
+        <span class="category">${product.category}</span>
+        <h4>${product.name}</h4>
+        <div class="price">$${product.price.toFixed(2)}</div>
+        <div class="stock">Stock: ${product.stock}</div>
+      `;
       recentProductsGrid.appendChild(card);
     });
   }
@@ -283,8 +363,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (file) {
       const reader = new FileReader();
-      reader.onload = function (e) {
-        preview.src = e.target.result;
+      reader.onload = function (event) {
+        preview.src = event.target.result;
         previewContainer.style.display = "block";
       };
       reader.readAsDataURL(file);
@@ -322,58 +402,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }`;
   }
 
-  function deleteProduct(e) {
-    const productId = parseInt(e.currentTarget.getAttribute("data-id"));
-    if (confirm("¿Estás seguro de eliminar este producto?")) {
-      products = products.filter((product) => product.id !== productId);
-      saveProducts();
-      renderProducts(filterAndSearchProducts());
-      updateHomeSummary();
-      updateTotalItems();
-      showNotification("Producto eliminado correctamente", "danger");
-    }
-  }
-
-  function editProduct(e) {
-    const productId = parseInt(e.currentTarget.getAttribute("data-id"));
-    const product = products.find((p) => p.id === productId);
-
-    if (product) {
-      document.getElementById("product-name").value = product.name;
-      document.getElementById("product-category").value = product.category;
-      document.getElementById("product-price").value = product.price;
-      document.getElementById("product-stock").value = product.stock;
-      document.getElementById("product-description").value =
-        product.description || "";
-
-      const imagePreview = document.getElementById("image-preview");
-      if (product.image) {
-        document.getElementById("preview-image").src = product.image;
-        imagePreview.style.display = "block";
-      } else {
-        imagePreview.style.display = "none";
-      }
-
-      addProductForm.dataset.editing = productId;
-      addProductForm.querySelector("button").innerHTML =
-        '<i class="fas fa-save"></i> Actualizar Producto';
-      document
-        .querySelector(".product-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
-  function saveProducts() {
-    localStorage.setItem("products", JSON.stringify(products));
-  }
-
   function showNotification(message, type) {
     const notification = document.createElement("div");
     notification.className = `notification ${type}`;
     notification.innerHTML = `
-            <span>${message}</span>
-            <button class="close-btn">&times;</button>
-        `;
+      <span>${message}</span>
+      <button class="close-btn">&times;</button>
+    `;
 
     document.body.appendChild(notification);
 
